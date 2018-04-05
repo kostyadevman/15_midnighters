@@ -1,6 +1,6 @@
 import requests
 import pytz
-
+from datetime import datetime
 
 def load_attempts():
     devman_response = requests.get(
@@ -18,11 +18,23 @@ def load_attempts():
 
 
 
-def get_midnighters():
-    pass
+def get_midnighters(attempts):
+    for attempt in attempts:
+        attempt_date = datetime.fromtimestamp(attempt['timestamp'])
+        timezone = pytz.timezone(attempt['timezone'])
+        username = attempt['username']
 
+        attempt_date_local = timezone.localize(attempt_date)
+        midnite_hour = 0
+        morning_hour = 6
+        if midnite_hour <= attempt_date_local.hour < morning_hour:
+            yield username
+
+def print_midnighters(midnighters):
+    pass
 
 if __name__ == '__main__':
     attempts = load_attempts()
-    for attempt in attempts:
-        print(attempt)
+    midnighters = get_midnighters(attempts)
+    print_midnighters(midnighters)
+
