@@ -7,14 +7,14 @@ def load_attempts():
     devman_url = 'https://devman.org/api/challenges/solution_attempts/'
     page = 1
     while True:
-        devman_response = requests.get(
+        devman_json = requests.get(
             devman_url,
-            params={'page':'{}'.format(page)}
+            params={'page': page}
         ).json()
-        for attempt in devman_response['records']:
+        for attempt in devman_json['records']:
             yield attempt
         page += 1
-        if page > devman_response['number_of_pages']:
+        if page > devman_json['number_of_pages']:
             break
 
 
@@ -25,13 +25,11 @@ def get_midnighters(attempts):
             attempt['timestamp'],
             pytz.timezone(attempt['timezone'])
         )
-        midnighter = attempt['username']
-
         midnite_hour = 0
         morning_hour = 6
         if midnite_hour <= attempt_date.hour < morning_hour:
-            if midnighter not in midnighters:
-                midnighters.append(midnighter)
+            if attempt['username'] not in midnighters:
+                midnighters.append(attempt['username'])
     return midnighters
 
 
